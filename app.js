@@ -30,7 +30,8 @@ passport.use(new GitHubStrategy({
 ));
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const loginRouter = require('./routes/login');
+const logoutRouter = require('./routes/logout');
 
 var app = express();
 app.use(helmet());
@@ -45,8 +46,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(session({ secret: '0b1a38960c590624', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/login', loginRouter);
+app.use('/logout', logoutRouter);
+
+app.get('/auth/github',
+	passport.authenticate('github', { scope: ['user:email'] }),
+	function (req, res) {
+	});
+
+app.get('/auth/github/callback',
+	passport.authenticate('github', { failureRedirect: '/login' }),
+	function (req, res) {
+		res.redirect('/');
+	});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
