@@ -4,6 +4,33 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const helmet = require('helmet');
+const session = require('express-session');
+const passport = require('passport');
+
+const GitHubStrategy = require('passport-github2').Strategy;
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const CALLBACK_URL = process.env.CALLBACK_URL;
+
+passport.serializeUser(function (user, done) {
+	done(null, user);
+});
+
+passport.deserializeUser(function (obj, done) {
+	done(null, obj);
+});
+
+passport.use(new GitHubStrategy({
+	clientID: GITHUB_CLIENT_ID,
+	clientSecret: GITHUB_CLIENT_SECRET,
+	callbackURL: CALLBACK_URL
+},
+	function (accessToken, refreshToken, profile, done) {
+		process.nextTick(function() {
+			return done(null, profile);
+		});
+	}
+));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

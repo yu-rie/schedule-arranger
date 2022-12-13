@@ -1,7 +1,7 @@
 yarn install
-RENDER=$(printenv | grep RENDER)
-if [ -n  "$RENDER" ]; then
+if [[ -v RENDER ]]; then
   yarn start
 else
+  source ./.env
   /bin/bash
 fi
