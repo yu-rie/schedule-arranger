@@ -8,4 +8,4 @@ ENV LANG=ja_JP.UTF-8
 ENV TZ=Asia/Tokyo
 WORKDIR /app
 COPY . /app
-CMD ["/bin/bash", "run.sh"]
+CMD ["sh", "run.sh"]

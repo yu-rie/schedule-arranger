@@ -1,7 +1,6 @@
 yarn install
-if [[ -v RENDER ]]; then
+if [ "$NODE_ENV" = "production" ]; then
   yarn start
 else
-  source ./.env
   /bin/bash
 fi

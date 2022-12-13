@@ -8,9 +8,6 @@ const session = require('express-session');
 const passport = require('passport');
 
 const GitHubStrategy = require('passport-github2').Strategy;
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-const CALLBACK_URL = process.env.CALLBACK_URL;
 
 passport.serializeUser(function (user, done) {
 	done(null, user);
@@ -21,9 +18,9 @@ passport.deserializeUser(function (obj, done) {
 });
 
 passport.use(new GitHubStrategy({
-	clientID: GITHUB_CLIENT_ID,
-	clientSecret: GITHUB_CLIENT_SECRET,
-	callbackURL: CALLBACK_URL
+	clientID: process.env.GITHUB_CLIENT_ID,
+	clientSecret: process.env.GITHUB_CLIENT_SECRET,
+	callbackURL: process.env.GITHUB_CALLBACK_URL
 },
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function() {
