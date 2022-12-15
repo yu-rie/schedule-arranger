@@ -7,6 +7,25 @@ const helmet = require('helmet');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
+
+// モデルの読み込み
+const User = require('./models/user');
+const Schedule = require('./models/schedule');
+const Availability = require('./models/availability');
+const Candidate = require('./models/candidate');
+const Comment = require('./models/comment');
+User.sync().then(async () => {
+  Schedule.belongsTo(User, {foreignKey: 'createdBy'});
+  Schedule.sync();
+  Comment.belongsTo(User, {foreignKey: 'userId'});
+  Comment.sync();
+  Availability.belongsTo(User, {foreignKey: 'userId'});
+  await Candidate.sync();
+  Availability.belongsTo(Candidate, {foreignKey: 'candidateId'});
+  Availability.sync();
+});
+
+
 const GitHubStrategy = require('passport-github2').Strategy;
 const SESSION_MAX_AGE = 24 * 60 * 60 * 1000 // セッション情報の期限
 
@@ -24,10 +43,14 @@ passport.use(new GitHubStrategy({
 	callbackURL: process.env.GITHUB_CALLBACK_URL
 },
 	function (accessToken, refreshToken, profile, done) {
-		process.nextTick(function() {
-			return done(null, profile);
-		});
-	}
+		    process.nextTick(async function () {
+      await User.upsert({
+        userId: profile.id,
+        username: profile.username
+      });
+      done(null, profile);
+    });
+  }
 ));
 
 var indexRouter = require('./routes/index');
