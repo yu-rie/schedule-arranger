@@ -5,9 +5,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const helmet = require('helmet');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
-
 const GitHubStrategy = require('passport-github2').Strategy;
+const SESSION_MAX_AGE = 24 * 60 * 60 * 1000 // セッション情報の期限
 
 passport.serializeUser(function (user, done) {
 	done(null, user);
@@ -46,7 +47,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: '0b1a38960c590624', resave: false, saveUninitialized: false }));
+app.use(session({
+	cookie: { maxAge : SESSION_MAX_AGE },
+	store: new MemoryStore({
+		checkPeriod : SESSION_MAX_AGE
+	}),
+	secret: '0b1a38960c590624',
+	resave: false,
+	saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
